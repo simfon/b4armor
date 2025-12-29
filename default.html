@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Punti Armatura - Inventario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            color: #c9b896;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(180deg, rgba(139, 109, 56, 0.3) 0%, transparent 100%);
+            border-bottom: 2px solid #8b6d38;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: #8b8b8b;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .side-panel {
+            background: linear-gradient(180deg, rgba(20, 20, 35, 0.9) 0%, rgba(15, 15, 25, 0.95) 100%);
+            border: 1px solid #3d3d5c;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .panel-title {
+            color: #d4af37;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #3d3d5c;
+        }
+
+        .body-container {
+            position: relative;
+            background: linear-gradient(180deg, rgba(20, 20, 35, 0.8) 0%, rgba(10, 10, 20, 0.9) 100%);
+            border: 2px solid #8b6d38;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 40px rgba(139, 109, 56, 0.2), inset 0 0 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .body-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 700px;
+            margin: 0 auto;
+        }
+
+        .body-silhouette {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 500px;
+            opacity: 0.12;
+        }
+
+        /* Slot Groups */
+        .slot-group {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .slot-group-label {
+            font-size: 0.65rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .slot-row {
+            display: flex;
+            gap: 4px;
+        }
+
+        .armor-slot {
+            width: 52px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.9) 0%, rgba(20, 20, 35, 0.95) 100%);
+            border: 2px solid #4a4a6a;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .armor-slot:hover {
+            border-color: #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            transform: scale(1.08);
+            z-index: 10;
+        }
+
+        .armor-slot.has-armor.cat-1 { border-color: #8b7355; background: linear-gradient(135deg, rgba(100, 80, 60, 0.6) 0%, rgba(70, 55, 40, 0.7) 100%); }
+        .armor-slot.has-armor.cat-2 { border-color: #708090; background: linear-gradient(135deg, rgba(80, 90, 100, 0.6) 0%, rgba(55, 65, 75, 0.7) 100%); }
+        .armor-slot.has-armor.cat-3 { border-color: #4682b4; background: linear-gradient(135deg, rgba(50, 90, 130, 0.6) 0%, rgba(35, 65, 95, 0.7) 100%); }
+        .armor-slot.has-armor.cat-4 { border-color: #9370db; background: linear-gradient(135deg, rgba(100, 70, 150, 0.6) 0%, rgba(70, 50, 110, 0.7) 100%); }
+
+        .slot-label {
+            font-size: 0.55rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .slot-value {
+            font-size: 0.8rem;
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        /* Helmet - special circular slot */
+        .slot-helmet {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+        }
+
+        .slot-helmet .slot-label {
+            font-size: 0.65rem;
+        }
+
+        .slot-helmet .slot-value {
+            font-size: 1rem;
+        }
+
+        .slot-helmet.has-armor {
+            border-color: #9370db;
+            background: linear-gradient(135deg, rgba(100, 70, 150, 0.5) 0%, rgba(70, 50, 110, 0.6) 100%);
+            box-shadow: 0 0 20px rgba(147, 112, 219, 0.3);
+        }
+
+        /* Position the slot groups */
+        .group-torso-sup {
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .group-torso-inf {
+            top: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .group-arm-l-sup {
+            top: 120px;
+            left: 30px;
+        }
+
+        .group-arm-l-inf {
+            top: 210px;
+            left: 15px;
+        }
+
+        .group-arm-r-sup {
+            top: 120px;
+            right: 30px;
+        }
+
+        .group-arm-r-inf {
+            top: 210px;
+            right: 15px;
+        }
+
+        .group-leg-l-sup {
+            top: 340px;
+            left: 70px;
+        }
+
+        .group-leg-l-inf {
+            top: 450px;
+            left: 55px;
+        }
+
+        .group-leg-r-sup {
+            top: 340px;
+            right: 70px;
+        }
+
+        .group-leg-r-inf {
+            top: 450px;
+            right: 55px;
+        }
+
+        /* Column labels */
+        .col-labels {
+            position: absolute;
+            top: 95px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            font-size: 0.6rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Results Panel */
+        .total-display {
+            text-align: center;
+            padding: 20px;
+            background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .total-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .total-value {
+            font-size: 3.5rem;
+            color: #d4af37;
+            font-weight: bold;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+            line-height: 1;
+        }
+
+        .total-raw {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            border-left: 3px solid #4a4a6a;
+            font-size: 0.85rem;
+        }
+
+        .breakdown-item.torso { border-left-color: #d4af37; }
+        .breakdown-item.arms { border-left-color: #6b8e23; }
+        .breakdown-item.legs { border-left-color: #4682b4; }
+        .breakdown-item.helmet { border-left-color: #9370db; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f23 100%);
+            border: 2px solid #8b6d38;
+            border-radius: 12px;
+            padding: 25px;
+            min-width: 320px;
+            max-width: 90%;
+            box-shadow: 0 0 50px rgba(139, 109, 56, 0.4);
+        }
+
+        .modal-title {
+            color: #d4af37;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .armor-option {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, rgba(40, 40, 60, 0.8) 0%, rgba(30, 30, 50, 0.9) 100%);
+            border: 1px solid #4a4a6a;
+            border-radius: 6px;
+            color: #c9b896;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .armor-option:hover {
+            border-color: #d4af37;
+            background: linear-gradient(90deg, rgba(60, 50, 30, 0.8) 0%, rgba(40, 35, 20, 0.9) 100%);
+        }
+
+        .armor-option.selected {
+            border-color: #6b8e23;
+            background: linear-gradient(90deg, rgba(40, 60, 30, 0.8) 0%, rgba(30, 45, 20, 0.9) 100%);
+        }
+
+        .option-name {
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .option-desc {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .option-points {
+            float: right;
+            color: #6b8e23;
+            font-weight: bold;
+        }
+
+        .modal-close {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: rgba(80, 40, 40, 0.6);
+            border: 1px solid #8b4444;
+            border-radius: 6px;
+            color: #c9b896;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(100, 50, 50, 0.8);
+        }
+
+        /* Quick Actions */
+        .quick-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, rgba(40, 40, 60, 0.6) 0%, rgba(30, 30, 50, 0.7) 100%);
+            border: 1px solid #4a4a6a;
+            border-radius: 6px;
+            color: #c9b896;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
+        }
+
+        .quick-btn:hover {
+            border-color: #d4af37;
+            background: linear-gradient(90deg, rgba(60, 50, 30, 0.6) 0%, rgba(40, 35, 20, 0.7) 100%);
+        }
+
+        .quick-btn.reset {
+            border-color: #8b4444;
+            background: rgba(80, 40, 40, 0.4);
+            margin-top: 15px;
+        }
+
+        .quick-btn.reset:hover {
+            background: rgba(100, 50, 50, 0.6);
+        }
+
+        /* Legend */
+        .legend {
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            margin-right: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .legend-color.cat-1 { background: linear-gradient(135deg, #8b7355, #5c4d3a); }
+        .legend-color.cat-2 { background: linear-gradient(135deg, #708090, #4a5a68); }
+        .legend-color.cat-3 { background: linear-gradient(135deg, #4682b4, #2d5577); }
+        .legend-color.cat-4 { background: linear-gradient(135deg, #9370db, #5f4a8c); }
+
+        .rounding-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            font-size: 0.65rem;
+            color: #666;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #3d3d5c;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ Punti Armatura</h1>
+            <p class="subtitle">Clicca sugli slot per equipaggiare l'armatura</p>
+        </header>
+
+        <div class="main-layout">
+            <!-- Left Panel -->
+            <div class="side-panel">
+                <div class="panel-title">Azioni Rapide</div>
+                
+                <button class="quick-btn" onclick="applyToZone('torso')">🛡️ Tutto Torso</button>
+                <button class="quick-btn" onclick="applyToZone('arm_l')">💪 Braccio SX</button>
+                <button class="quick-btn" onclick="applyToZone('arm_r')">💪 Braccio DX</button>
+                <button class="quick-btn" onclick="applyToZone('leg_l')">🦵 Gamba SX</button>
+                <button class="quick-btn" onclick="applyToZone('leg_r')">🦵 Gamba DX</button>
+                
+                <hr class="section-divider">
+                
+                <button class="quick-btn" onclick="applyToZone('all')">⚔️ Tutto il Corpo</button>
+                <button class="quick-btn reset" onclick="resetAll()">🔄 Reset</button>
+
+                <div class="legend">
+                    <div class="panel-title">Legenda</div>
+                    <div class="legend-item">
+                        <div class="legend-color cat-1"></div>
+                        <span>Cat.1 Gambeson/Cuoio</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cat-2"></div>
+                        <span>Cat.2 Piastre/Maglia</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cat-3"></div>
+                        <span>Cat.3 Sovrapposizione Cat. 1 e 2</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cat-4"></div>
+                        <span>Cat.4 Piastre+Maglia</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center - Body -->
+            <div class="body-container">
+                <div class="body-wrapper">
+                    <!-- Silhouette -->
+                    <svg class="body-silhouette" viewBox="0 0 100 200" preserveAspectRatio="xMidYMid meet">
+                        <circle cx="50" cy="15" r="12" fill="#c9b896"/>
+                        <rect x="46" y="27" width="8" height="8" fill="#c9b896"/>
+                        <path d="M30 35 L70 35 L75 90 L25 90 Z" fill="#c9b896"/>
+                        <path d="M30 35 L20 38 L12 75 L18 77 L28 50 L30 50" fill="#c9b896"/>
+                        <path d="M70 35 L80 38 L88 75 L82 77 L72 50 L70 50" fill="#c9b896"/>
+                        <path d="M25 90 L30 90 L35 150 L42 150 L48 90 L52 90 L58 150 L65 150 L70 90 L75 90 L65 155 L60 155 L50 95 L40 155 L35 155 Z" fill="#c9b896"/>
+                        <ellipse cx="38" cy="158" rx="8" ry="4" fill="#c9b896"/>
+                        <ellipse cx="62" cy="158" rx="8" ry="4" fill="#c9b896"/>
+                    </svg>
+
+                    <!-- Helmet -->
+                    <div class="armor-slot slot-helmet" data-slot="helmet" onclick="openModal('helmet')">
+                        <span class="slot-label">Elmo</span>
+                        <span class="slot-value" id="val-helmet">—</span>
+                    </div>
+
+                    <!-- Column Labels for Torso -->
+                    <div class="col-labels">
+                        <span>Fronte</span>
+                        <span>Retro</span>
+                    </div>
+
+                    <!-- Torso Superior -->
+                    <div class="slot-group group-torso-sup">
+                        <span class="slot-group-label">Torso Sup.</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="torso_sup_front" onclick="openModal('torso_sup_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-torso_sup_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="torso_sup_back" onclick="openModal('torso_sup_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-torso_sup_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Torso Inferior -->
+                    <div class="slot-group group-torso-inf">
+                        <span class="slot-group-label">Torso Inf.</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="torso_inf_front" onclick="openModal('torso_inf_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-torso_inf_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="torso_inf_back" onclick="openModal('torso_inf_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-torso_inf_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Left Arm Superior -->
+                    <div class="slot-group group-arm-l-sup">
+                        <span class="slot-group-label">Br. Sup SX</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="arm_l_sup_front" onclick="openModal('arm_l_sup_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-arm_l_sup_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="arm_l_sup_back" onclick="openModal('arm_l_sup_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-arm_l_sup_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Left Arm Inferior -->
+                    <div class="slot-group group-arm-l-inf">
+                        <span class="slot-group-label">Br. Inf SX</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="arm_l_inf_front" onclick="openModal('arm_l_inf_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-arm_l_inf_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="arm_l_inf_back" onclick="openModal('arm_l_inf_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-arm_l_inf_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Arm Superior -->
+                    <div class="slot-group group-arm-r-sup">
+                        <span class="slot-group-label">Br. Sup DX</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="arm_r_sup_front" onclick="openModal('arm_r_sup_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-arm_r_sup_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="arm_r_sup_back" onclick="openModal('arm_r_sup_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-arm_r_sup_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Arm Inferior -->
+                    <div class="slot-group group-arm-r-inf">
+                        <span class="slot-group-label">Br. Inf DX</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="arm_r_inf_front" onclick="openModal('arm_r_inf_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-arm_r_inf_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="arm_r_inf_back" onclick="openModal('arm_r_inf_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-arm_r_inf_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Left Leg Superior -->
+                    <div class="slot-group group-leg-l-sup">
+                        <span class="slot-group-label">Coscia SX</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="leg_l_sup_front" onclick="openModal('leg_l_sup_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-leg_l_sup_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="leg_l_sup_back" onclick="openModal('leg_l_sup_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-leg_l_sup_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Left Leg Inferior -->
+                    <div class="slot-group group-leg-l-inf">
+                        <span class="slot-group-label">Stinco SX</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="leg_l_inf_front" onclick="openModal('leg_l_inf_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-leg_l_inf_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="leg_l_inf_back" onclick="openModal('leg_l_inf_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-leg_l_inf_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Leg Superior -->
+                    <div class="slot-group group-leg-r-sup">
+                        <span class="slot-group-label">Coscia DX</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="leg_r_sup_front" onclick="openModal('leg_r_sup_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-leg_r_sup_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="leg_r_sup_back" onclick="openModal('leg_r_sup_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-leg_r_sup_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Leg Inferior -->
+                    <div class="slot-group group-leg-r-inf">
+                        <span class="slot-group-label">Stinco DX</span>
+                        <div class="slot-row">
+                            <div class="armor-slot" data-slot="leg_r_inf_front" onclick="openModal('leg_r_inf_front')">
+                                <span class="slot-label">Fr</span>
+                                <span class="slot-value" id="val-leg_r_inf_front">—</span>
+                            </div>
+                            <div class="armor-slot" data-slot="leg_r_inf_back" onclick="openModal('leg_r_inf_back')">
+                                <span class="slot-label">Re</span>
+                                <span class="slot-value" id="val-leg_r_inf_back">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Right Panel - Results -->
+            <div class="side-panel">
+                <div class="panel-title">Riepilogo</div>
+                
+                <div class="total-display">
+                    <div class="total-label">Punti Armatura</div>
+                    <div class="total-value" id="total-pa">0</div>
+                    <div class="total-raw">Grezzo: <span id="total-raw">0.0</span></div>
+                </div>
+
+                <div class="breakdown">
+                    <div class="breakdown-item torso">
+                        <span>🛡️ Torso</span>
+                        <span id="sub-torso">0</span>
+                    </div>
+                    <div class="breakdown-item arms">
+                        <span>💪 Braccia</span>
+                        <span id="sub-arms">0</span>
+                    </div>
+                    <div class="breakdown-item legs">
+                        <span>🦵 Gambe</span>
+                        <span id="sub-legs">0</span>
+                    </div>
+                    <div class="breakdown-item helmet">
+                        <span>⛑️ Elmo</span>
+                        <span id="sub-helmet">0</span>
+                    </div>
+                </div>
+
+                <div class="rounding-info">
+                    <strong>Arrotondamento:</strong><br>
+                    Decimale ≥ 0.7 → arrotonda per eccesso<br>
+                    (es: 4.7 → 5, ma 4.6 → 4)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-title" id="modal-title">Seleziona Armatura</div>
+            <div id="modal-options"></div>
+            <button class="modal-close" onclick="closeModal()">Chiudi</button>
+        </div>
+    </div>
+
+    <script>
+        // State - all 21 slots (helmet + 20 body locations)
+        const armorState = {
+            helmet: 0,
+            torso_sup_front: 0, torso_sup_back: 0,
+            torso_inf_front: 0, torso_inf_back: 0,
+            arm_l_sup_front: 0, arm_l_sup_back: 0,
+            arm_l_inf_front: 0, arm_l_inf_back: 0,
+            arm_r_sup_front: 0, arm_r_sup_back: 0,
+            arm_r_inf_front: 0, arm_r_inf_back: 0,
+            leg_l_sup_front: 0, leg_l_sup_back: 0,
+            leg_l_inf_front: 0, leg_l_inf_back: 0,
+            leg_r_sup_front: 0, leg_r_sup_back: 0,
+            leg_r_inf_front: 0, leg_r_inf_back: 0
+        };
+
+        // Points tables
+        const torsoPoints = { 1: 0.2, 2: 0.3, 3: 0.4, 4: 0.5 };
+        const limbPoints = { 1: 0.1, 2: 0.2, 3: 0.3, 4: 0.4 };
+
+        // Helmet options
+        const helmetOptions = [
+            { value: 0, name: 'Nessun elmo', desc: '', points: 0 },
+            { value: 1, name: 'Cuoio/Gambeson aperto', desc: 'Elmo leggero', points: 0.2 },
+            { value: 2, name: 'Cuoio/Gambeson chiuso', desc: 'Copre ≥75% viso', points: 0.3 },
+            { value: 3, name: 'Camaglio/Cervelliera', desc: 'Con o senza maglia', points: 0.5 },
+            { value: 4, name: 'Lattice/Metallo aperto', desc: 'Elmo scenico o metallico', points: 0.7 },
+            { value: 5, name: 'Metallo con visiera', desc: 'Chiuso ≥75%', points: 1.0 },
+            { value: 6, name: 'Camaglio + Elmo metallo', desc: 'Combinazione completa', points: 1.5 }
+        ];
+
+        // Body armor options
+        const bodyOptions = [
+            { value: 0, name: 'Nessuna', desc: '' },
+            { value: 1, name: 'Categoria 1', desc: 'Gambeson, cuoio, pelliccia' },
+            { value: 2, name: 'Categoria 2', desc: 'Piastre, maglia, brigantina' },
+            { value: 3, name: 'Categoria 3', desc: 'Cat.1 + Cat.2 sovrapposti' },
+            { value: 4, name: 'Categoria 4', desc: 'Piastre su maglia' }
+        ];
+
+        const slotNames = {
+            helmet: 'Elmo',
+            torso_sup_front: 'Torso Superiore (Fronte)',
+            torso_sup_back: 'Torso Superiore (Retro)',
+            torso_inf_front: 'Torso Inferiore (Fronte)',
+            torso_inf_back: 'Torso Inferiore (Retro)',
+            arm_l_sup_front: 'Braccio SX Sup. (Fronte)',
+            arm_l_sup_back: 'Braccio SX Sup. (Retro)',
+            arm_l_inf_front: 'Braccio SX Inf. (Fronte)',
+            arm_l_inf_back: 'Braccio SX Inf. (Retro)',
+            arm_r_sup_front: 'Braccio DX Sup. (Fronte)',
+            arm_r_sup_back: 'Braccio DX Sup. (Retro)',
+            arm_r_inf_front: 'Braccio DX Inf. (Fronte)',
+            arm_r_inf_back: 'Braccio DX Inf. (Retro)',
+            leg_l_sup_front: 'Gamba SX Sup. (Fronte)',
+            leg_l_sup_back: 'Gamba SX Sup. (Retro)',
+            leg_l_inf_front: 'Gamba SX Inf. (Fronte)',
+            leg_l_inf_back: 'Gamba SX Inf. (Retro)',
+            leg_r_sup_front: 'Gamba DX Sup. (Fronte)',
+            leg_r_sup_back: 'Gamba DX Sup. (Retro)',
+            leg_r_inf_front: 'Gamba DX Inf. (Fronte)',
+            leg_r_inf_back: 'Gamba DX Inf. (Retro)'
+        };
+
+        function getPointsForSlot(slot, category) {
+            if (category === 0) return 0;
+            if (slot.startsWith('torso')) {
+                return torsoPoints[category];
+            }
+            return limbPoints[category];
+        }
+
+        function openModal(slot) {
+            const modal = document.getElementById('modal-overlay');
+            const title = document.getElementById('modal-title');
+            const optionsContainer = document.getElementById('modal-options');
+            
+            title.textContent = slotNames[slot] || slot;
+            optionsContainer.innerHTML = '';
+
+            const options = slot === 'helmet' ? helmetOptions : bodyOptions;
+            const currentValue = armorState[slot];
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'armor-option' + (opt.value === currentValue ? ' selected' : '');
+                
+                if (slot === 'helmet') {
+                    btn.innerHTML = `
+                        <span class="option-name">${opt.name}</span>
+                        <span class="option-points">+${opt.points}</span>
+                        ${opt.desc ? `<div class="option-desc">${opt.desc}</div>` : ''}
+                    `;
+                } else {
+                    const points = getPointsForSlot(slot, opt.value);
+                    btn.innerHTML = `
+                        <span class="option-name">${opt.name}</span>
+                        <span class="option-points">+${points}</span>
+                        ${opt.desc ? `<div class="option-desc">${opt.desc}</div>` : ''}
+                    `;
+                }
+                
+                btn.onclick = () => {
+                    armorState[slot] = opt.value;
+                    updateDisplay();
+                    closeModal();
+                };
+                optionsContainer.appendChild(btn);
+            });
+
+            modal.classList.add('active');
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+
+        function applyToZone(zone) {
+            const modal = document.getElementById('modal-overlay');
+            const title = document.getElementById('modal-title');
+            const optionsContainer = document.getElementById('modal-options');
+            
+            const zoneNames = {
+                torso: 'Tutto il Torso',
+                arm_l: 'Braccio Sinistro',
+                arm_r: 'Braccio Destro',
+                leg_l: 'Gamba Sinistra',
+                leg_r: 'Gamba Destra',
+                all: 'Tutto il Corpo'
+            };
+            
+            title.textContent = zoneNames[zone];
+            optionsContainer.innerHTML = '';
+
+            bodyOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'armor-option';
+                btn.innerHTML = `
+                    <span class="option-name">${opt.name}</span>
+                    ${opt.desc ? `<div class="option-desc">${opt.desc}</div>` : ''}
+                `;
+                btn.onclick = () => {
+                    Object.keys(armorState).forEach(slot => {
+                        if (slot === 'helmet') return;
+                        if (zone === 'all' || slot.startsWith(zone)) {
+                            armorState[slot] = opt.value;
+                        }
+                    });
+                    updateDisplay();
+                    closeModal();
+                };
+                optionsContainer.appendChild(btn);
+            });
+
+            modal.classList.add('active');
+        }
+
+        function resetAll() {
+            Object.keys(armorState).forEach(key => {
+                armorState[key] = 0;
+            });
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            let torsoTotal = 0, armsTotal = 0, legsTotal = 0, helmetTotal = 0;
+
+            Object.keys(armorState).forEach(slot => {
+                const value = armorState[slot];
+                const slotEl = document.querySelector(`[data-slot="${slot}"]`);
+                const valEl = document.getElementById(`val-${slot}`);
+                
+                if (!slotEl || !valEl) return; // Safety check
+                
+                if (slot === 'helmet') {
+                    const helmOpt = helmetOptions.find(h => h.value === value);
+                    helmetTotal = helmOpt ? helmOpt.points : 0;
+                    valEl.textContent = value === 0 ? '—' : `+${helmetTotal}`;
+                    slotEl.classList.toggle('has-armor', value > 0);
+                } else {
+                    const points = getPointsForSlot(slot, value);
+                    valEl.textContent = value === 0 ? '—' : `+${points}`;
+                    
+                    // Update slot styling
+                    slotEl.classList.remove('has-armor', 'cat-1', 'cat-2', 'cat-3', 'cat-4');
+                    if (value > 0) {
+                        slotEl.classList.add('has-armor', `cat-${value}`);
+                    }
+
+                    // Add to subtotals
+                    if (slot.startsWith('torso')) torsoTotal += points;
+                    else if (slot.startsWith('arm')) armsTotal += points;
+                    else if (slot.startsWith('leg')) legsTotal += points;
+                }
+            });
+
+            const totalRaw = torsoTotal + armsTotal + legsTotal + helmetTotal;
+            const decimal = totalRaw - Math.floor(totalRaw);
+            const finalTotal = decimal >= 0.7 ? Math.ceil(totalRaw) : Math.floor(totalRaw);
+
+            document.getElementById('total-pa').textContent = finalTotal;
+            document.getElementById('total-raw').textContent = totalRaw.toFixed(1);
+            document.getElementById('sub-torso').textContent = torsoTotal.toFixed(1);
+            document.getElementById('sub-arms').textContent = armsTotal.toFixed(1);
+            document.getElementById('sub-legs').textContent = legsTotal.toFixed(1);
+            document.getElementById('sub-helmet').textContent = helmetTotal.toFixed(1);
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
