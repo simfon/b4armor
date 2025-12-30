@@ -52,7 +52,13 @@
 
             <!-- Center - Body -->
             <div class="body-container">
-                <div class="body-wrapper">
+                <!-- View toggle for mobile -->
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="switchView('front')">👤 Fronte</button>
+                    <button class="view-btn" onclick="switchView('back')">🔄 Retro</button>
+                </div>
+                
+                <div class="body-wrapper view-front">
                     <!-- Silhouette -->
                     <svg class="body-silhouette" viewBox="0 0 100 200" preserveAspectRatio="xMidYMid meet">
                         <circle cx="50" cy="15" r="12" fill="#c9b896"/>

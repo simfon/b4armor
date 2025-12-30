@@ -50,6 +50,223 @@ h1 {
     .main-layout {
         grid-template-columns: 1fr;
     }
+    
+    .side-panel {
+        order: 2;
+    }
+    
+    .body-container {
+        order: 1;
+    }
+}
+
+/* Mobile view toggle */
+.view-toggle {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    /* View toggle buttons */
+    .view-toggle {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .view-btn {
+        flex: 1;
+        padding: 12px 20px;
+        background: linear-gradient(90deg, rgba(40, 40, 60, 0.6) 0%, rgba(30, 30, 50, 0.7) 100%);
+        border: 2px solid #4a4a6a;
+        border-radius: 8px;
+        color: #c9b896;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .view-btn.active {
+        border-color: #d4af37;
+        background: linear-gradient(90deg, rgba(60, 50, 30, 0.8) 0%, rgba(40, 35, 20, 0.9) 100%);
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    }
+    
+    /* Hide column labels on mobile */
+    .col-labels {
+        display: none;
+    }
+    
+    /* Hide back slots when front view is active */
+    .body-wrapper.view-front [data-slot$="_back"] {
+        display: none;
+    }
+    
+    /* Hide front slots when back view is active */
+    .body-wrapper.view-back [data-slot$="_front"] {
+        display: none;
+    }
+    
+    /* Adjust body wrapper */
+    .body-wrapper {
+        min-height: 620px;
+        padding: 10px;
+    }
+    
+    .body-silhouette {
+        display: none;
+    }
+    
+    /* Larger, more tappable slots */
+    .armor-slot {
+        width: 75px;
+        height: 70px;
+        border-width: 2.5px;
+    }
+    
+    .armor-slot:hover {
+        transform: scale(1.05);
+    }
+    
+    .slot-label {
+        font-size: 0.7rem;
+    }
+    
+    .slot-value {
+        font-size: 1.05rem;
+    }
+    
+    /* Larger helmet */
+    .slot-helmet {
+        width: 100px;
+        height: 100px;
+        top: 20px;
+    }
+    
+    .slot-helmet .slot-label {
+        font-size: 0.8rem;
+    }
+    
+    .slot-helmet .slot-value {
+        font-size: 1.3rem;
+    }
+    
+    /* Single column layout - only one slot visible per row */
+    .slot-row {
+        justify-content: center;
+    }
+    
+    .slot-group {
+        gap: 8px;
+    }
+    
+    .slot-group-label {
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    /* Vertical layout - stacked by body part */
+    /* Torso centrato */
+    .group-torso-sup {
+        top: 140px;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+    }
+    
+    .group-torso-inf {
+        top: 250px;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+    }
+    
+    /* Braccia SX a sinistra, DX a destra */
+    .group-arm-l-sup {
+        top: 140px;
+        left: 10px !important;
+        right: auto !important;
+        transform: none !important;
+    }
+    
+    .group-arm-r-sup {
+        top: 140px;
+        left: auto !important;
+        right: 10px !important;
+        transform: none !important;
+    }
+    
+    .group-arm-l-inf {
+        top: 250px;
+        left: 10px !important;
+        right: auto !important;
+        transform: none !important;
+    }
+    
+    .group-arm-r-inf {
+        top: 250px;
+        left: auto !important;
+        right: 10px !important;
+        transform: none !important;
+    }
+    
+    /* Gambe SX a sinistra, DX a destra */
+    .group-leg-l-sup {
+        top: 400px;
+        left: 10px !important;
+        right: auto !important;
+        transform: none !important;
+    }
+    
+    .group-leg-r-sup {
+        top: 400px;
+        left: auto !important;
+        right: 10px !important;
+        transform: none !important;
+    }
+    
+    .group-leg-l-inf {
+        top: 510px;
+        left: 10px !important;
+        right: auto !important;
+        transform: none !important;
+    }
+    
+    .group-leg-r-inf {
+        top: 510px;
+        left: auto !important;
+        right: 10px !important;
+        transform: none !important;
+    }
+    
+    /* Modal improvements for mobile */
+    .modal {
+        padding: 20px;
+        min-width: 280px;
+        max-width: 95%;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .armor-option {
+        padding: 14px 12px;
+        margin-bottom: 10px;
+    }
+    
+    .option-name {
+        font-size: 0.95rem;
+    }
+    
+    .option-desc {
+        font-size: 0.8rem;
+    }
+    
+    .option-points {
+        font-size: 1rem;
+    }
 }
 
 .side-panel {

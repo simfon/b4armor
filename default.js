@@ -209,3 +209,22 @@ function updateDisplay() {
 
 // Initialize
 updateDisplay();
+
+// Mobile view toggle
+function switchView(view) {
+    const wrapper = document.querySelector('.body-wrapper');
+    const buttons = document.querySelectorAll('.view-btn');
+    
+    // Update wrapper class
+    wrapper.className = 'body-wrapper view-' + view;
+    
+    // Update button states
+    buttons.forEach(btn => {
+        if ((view === 'front' && btn.textContent.includes('Fronte')) ||
+            (view === 'back' && btn.textContent.includes('Retro'))) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
