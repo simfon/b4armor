@@ -240,13 +240,17 @@
             <div class="side-panel">
                 <div class="panel-title">Riepilogo</div>
                 
-                <div class="total-display">
-                    <div class="total-label">Punti Armatura</div>
-                    <div class="total-value" id="total-pa">0</div>
-                    <div class="total-raw">Grezzo: <span id="total-raw">0.0</span></div>
+                <div class="total-display total-display-main">
+                    <div class="total-label">Punti Totali</div>
+                    <div class="total-value" id="total-pt">2</div>
+                    <div class="total-breakdown">
+                        <span class="pt-pv">PV: <strong id="display-pv">2</strong></span>
+                        <span class="pt-separator">+</span>
+                        <span class="pt-pa">PA: <strong id="display-pa">0</strong></span>
+                    </div>
                 </div>
 
-                <div class="breakdown">
+                <div class="breakdown breakdown-compact">
                     <div class="breakdown-item torso">
                         <span>🛡️ Torso</span>
                         <span id="sub-torso">0</span>
@@ -264,11 +268,71 @@
                         <span id="sub-helmet">0</span>
                     </div>
                 </div>
+                
+                <div class="pa-raw">
+                    PA Grezzo: <span id="total-raw">0.0</span> → <span id="total-pa">0</span>
+                </div>
+
+                <hr class="section-divider">
+                
+                <div class="panel-title">Abilità</div>
+                
+                <div class="abilities-list">
+                    <label class="ability-item">
+                        <input type="checkbox" id="ability-costituzione" onchange="updateDisplay()">
+                        <div class="ability-info">
+                            <span class="ability-name">Costituzione</span>
+                            <span class="ability-bonus">+1 PV</span>
+                        </div>
+                    </label>
+                    
+                    <label class="ability-item">
+                        <input type="checkbox" id="ability-costituzione-sup" onchange="updateDisplay()">
+                        <div class="ability-info">
+                            <span class="ability-name">Costituzione Superiore</span>
+                            <span class="ability-bonus">+1 PV</span>
+                        </div>
+                    </label>
+                    
+                    <label class="ability-item">
+                        <input type="checkbox" id="ability-combattente-leggero" onchange="updateDisplay()">
+                        <div class="ability-info">
+                            <span class="ability-name">Combattente Leggero</span>
+                            <span class="ability-bonus ability-bonus-special">Cat.1→Cat.2</span>
+                            <span class="ability-desc">Solo se indossi Cat.1</span>
+                        </div>
+                    </label>
+                    
+                    <label class="ability-item">
+                        <input type="checkbox" id="ability-corazzatura" onchange="updateDisplay()">
+                        <div class="ability-info">
+                            <span class="ability-name">Corazzatura</span>
+                            <span class="ability-bonus">+1 PA</span>
+                            <span class="ability-desc">Torso tutto Cat.2+</span>
+                        </div>
+                    </label>
+                    
+                    <label class="ability-item">
+                        <input type="checkbox" id="ability-corazzatura-exc" onchange="updateDisplay()">
+                        <div class="ability-info">
+                            <span class="ability-name">Corazzatura Eccezionale</span>
+                            <span class="ability-bonus">+0.5 PA</span>
+                            <span class="ability-desc">Torso tutto Cat.3+</span>
+                        </div>
+                    </label>
+                    
+                    <label class="ability-item">
+                        <input type="checkbox" id="ability-corazzatura-sup" onchange="updateDisplay()">
+                        <div class="ability-info">
+                            <span class="ability-name">Corazzatura Superiore</span>
+                            <span class="ability-bonus">+0.5 PA</span>
+                            <span class="ability-desc">Torso tutto Cat.4</span>
+                        </div>
+                    </label>
+                </div>
 
                 <div class="rounding-info">
-                    <strong>Arrotondamento:</strong><br>
-                    Decimale ≥ 0.7 → arrotonda per eccesso<br>
-                    (es: 4.7 → 5, ma 4.6 → 4)
+                    <strong>Arrotondamento PA:</strong> ≥0.7 → eccesso
                 </div>
             </div>
         </div>

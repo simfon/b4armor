@@ -61,12 +61,39 @@ const slotNames = {
     leg_r_inf_back: 'Gamba DX Inf. (Retro)'
 };
 
-function getPointsForSlot(slot, category) {
+function getPointsForSlot(slot, category, useCombattenteLeggero = false) {
     if (category === 0) return 0;
-    if (slot.startsWith('torso')) {
-        return torsoPoints[category];
+    
+    let effectiveCategory = category;
+    
+    // Combattente Leggero: Cat.1 counts as Cat.2 (except helmet)
+    if (useCombattenteLeggero && category === 1 && slot !== 'helmet') {
+        effectiveCategory = 2;
     }
-    return limbPoints[category];
+    
+    if (slot.startsWith('torso')) {
+        return torsoPoints[effectiveCategory];
+    }
+    return limbPoints[effectiveCategory];
+}
+
+// Check if player is wearing ONLY Cat.1 armor (for Combattente Leggero)
+function isWearingOnlyCat1() {
+    for (const slot of Object.keys(armorState)) {
+        if (slot === 'helmet') continue; // Helmet excluded
+        const value = armorState[slot];
+        if (value > 1) return false; // Has Cat.2+ armor
+    }
+    return true;
+}
+
+// Check if all torso slots have at least the specified category
+function torsoHasMinCategory(minCat) {
+    const torsoSlots = ['torso_sup_front', 'torso_sup_back', 'torso_inf_front', 'torso_inf_back'];
+    for (const slot of torsoSlots) {
+        if (armorState[slot] < minCat) return false;
+    }
+    return true;
 }
 
 function openModal(slot) {
@@ -163,6 +190,17 @@ function resetAll() {
 }
 
 function updateDisplay() {
+    // Get ability states
+    const hasCostituizione = document.getElementById('ability-costituzione')?.checked || false;
+    const hasCostituizioneSup = document.getElementById('ability-costituzione-sup')?.checked || false;
+    const hasCombattenteLeggero = document.getElementById('ability-combattente-leggero')?.checked || false;
+    const hasCorazzatura = document.getElementById('ability-corazzatura')?.checked || false;
+    const hasCorazzaturaExc = document.getElementById('ability-corazzatura-exc')?.checked || false;
+    const hasCorazzaturaSup = document.getElementById('ability-corazzatura-sup')?.checked || false;
+    
+    // Check Combattente Leggero eligibility
+    const canUseCombattenteLeggero = hasCombattenteLeggero && isWearingOnlyCat1();
+    
     let torsoTotal = 0, armsTotal = 0, legsTotal = 0, helmetTotal = 0;
 
     Object.keys(armorState).forEach(slot => {
@@ -178,7 +216,7 @@ function updateDisplay() {
             valEl.textContent = value === 0 ? '—' : `+${helmetTotal}`;
             slotEl.classList.toggle('has-armor', value > 0);
         } else {
-            const points = getPointsForSlot(slot, value);
+            const points = getPointsForSlot(slot, value, canUseCombattenteLeggero);
             valEl.textContent = value === 0 ? '—' : `+${points}`;
             
             // Update slot styling
@@ -194,12 +232,41 @@ function updateDisplay() {
         }
     });
 
-    const totalRaw = torsoTotal + armsTotal + legsTotal + helmetTotal;
+    // Calculate base PA
+    let totalRaw = torsoTotal + armsTotal + legsTotal + helmetTotal;
+    
+    // Apply Corazzatura bonuses
+    let bonusPA = 0;
+    if (hasCorazzatura && torsoHasMinCategory(2)) {
+        bonusPA += 1;
+    }
+    if (hasCorazzaturaExc && torsoHasMinCategory(3)) {
+        bonusPA += 0.5;
+    }
+    if (hasCorazzaturaSup && torsoHasMinCategory(4)) {
+        bonusPA += 0.5;
+    }
+    
+    totalRaw += bonusPA;
+    
+    // Apply rounding
     const totalRounded = Math.round(totalRaw * 10) / 10;
     const decimal = Math.round((totalRounded - Math.floor(totalRounded)) * 10) / 10;
-    const finalTotal = decimal >= 0.7 ? Math.ceil(totalRaw) : Math.floor(totalRaw);
+    const finalPA = decimal >= 0.7 ? Math.ceil(totalRaw) : Math.floor(totalRaw);
 
-    document.getElementById('total-pa').textContent = finalTotal;
+    // Calculate PV
+    let pv = 2; // Base PV
+    if (hasCostituizione) pv += 1;
+    if (hasCostituizioneSup) pv += 1;
+    
+    // Calculate Total Points
+    const totalPT = pv + finalPA;
+
+    // Update display
+    document.getElementById('total-pt').textContent = totalPT;
+    document.getElementById('display-pv').textContent = pv;
+    document.getElementById('display-pa').textContent = finalPA;
+    document.getElementById('total-pa').textContent = finalPA;
     document.getElementById('total-raw').textContent = totalRaw.toFixed(1);
     document.getElementById('sub-torso').textContent = torsoTotal.toFixed(1);
     document.getElementById('sub-arms').textContent = armsTotal.toFixed(1);

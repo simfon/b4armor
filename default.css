@@ -476,31 +476,66 @@ h1 {
 /* Results Panel */
 .total-display {
     text-align: center;
-    padding: 20px;
+    padding: 15px;
     background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
     border-radius: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+}
+
+.total-display-main {
+    padding: 12px;
 }
 
 .total-label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #888;
     text-transform: uppercase;
     letter-spacing: 2px;
 }
 
 .total-value {
-    font-size: 3.5rem;
+    font-size: 2.8rem;
     color: #d4af37;
     font-weight: bold;
     text-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
     line-height: 1;
 }
 
-.total-raw {
-    font-size: 0.9rem;
+.total-breakdown {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 0.85rem;
+}
+
+.pt-pv {
+    color: #e74c3c;
+}
+
+.pt-pa {
+    color: #3498db;
+}
+
+.pt-separator {
     color: #666;
-    margin-top: 5px;
+}
+
+.pa-raw {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.breakdown-compact {
+    gap: 4px;
+}
+
+.breakdown-compact .breakdown-item {
+    padding: 5px 10px;
+    font-size: 0.75rem;
 }
 
 .breakdown {
@@ -675,14 +710,80 @@ h1 {
 .legend-color.cat-4 { background: linear-gradient(135deg, #9370db, #5f4a8c); }
 
 .rounding-info {
-    margin-top: 15px;
-    padding: 10px;
+    margin-top: 10px;
+    padding: 8px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 6px;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: #666;
     text-align: center;
     line-height: 1.4;
+}
+
+/* Abilities */
+.abilities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ability-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.ability-item:hover {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: #4a4a6a;
+}
+
+.ability-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: #d4af37;
+    cursor: pointer;
+}
+
+.ability-item:has(input:checked) {
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.ability-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.ability-name {
+    font-size: 0.75rem;
+    color: #c9b896;
+    font-weight: 600;
+}
+
+.ability-bonus {
+    font-size: 0.7rem;
+    color: #6b8e23;
+    font-weight: bold;
+}
+
+.ability-bonus-special {
+    color: #3498db;
+}
+
+.ability-desc {
+    font-size: 0.6rem;
+    color: #666;
+    font-style: italic;
 }
 
 .section-divider {
