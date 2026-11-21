@@ -252,7 +252,8 @@ function updateDisplay() {
     // Apply rounding
     const totalRounded = Math.round(totalRaw * 10) / 10;
     const decimal = Math.round((totalRounded - Math.floor(totalRounded)) * 10) / 10;
-    const finalPA = decimal >= 0.7 ? Math.ceil(totalRaw) : Math.floor(totalRaw);
+    // Use the rounded value: floating-point sums (e.g. 6.9999999) must not be floored down
+    const finalPA = decimal >= 0.7 ? Math.ceil(totalRounded) : Math.floor(totalRounded);
 
     // Calculate PV
     let pv = 2; // Base PV
